@@ -4,11 +4,6 @@ name: Publish https-wrench Helm Chart (OCI)
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'https-wrench/**'
-      - '.github/workflows/release-https-wrench.yml'
     tags:
       - 'https-wrench-v*'
   workflow_dispatch:

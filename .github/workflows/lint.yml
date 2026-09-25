@@ -1,0 +1,69 @@
+# yamllint disable rule:comments rule:line-length
+---
+name: Lint Helm Charts
+
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  HELM_VERSION: "v3.16.1"
+
+jobs:
+  lint:
+    name: Lint & Validate Charts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Lint and Validate All Charts
+        run: |
+          shopt -s nullglob
+          charts=(*/Chart.yaml)
+          if [ ${#charts[@]} -eq 0 ]; then
+            echo "No Helm charts found to lint."
+            exit 0
+          fi
+
+          failed=0
+          for chart_file in "${charts[@]}"; do
+            chart_dir=$(dirname "${chart_file}")
+            echo "=========================================="
+            echo "==> Linting chart: ${chart_dir}"
+            echo "=========================================="
+            if ! helm lint "${chart_dir}"; then
+              echo "Error: helm lint failed for ${chart_dir}" >&2
+              failed=1
+              continue
+            fi
+
+            echo "==> Validating template dry-run: ${chart_dir}"
+            if ! helm template test "${chart_dir}" > /dev/null; then
+              echo "Error: helm template test failed for ${chart_dir}" >&2
+              failed=1
+              continue
+            fi
+
+            echo "==> ${chart_dir} passed validation."
+          done
+
+          if [ $failed -ne 0 ]; then
+            echo "One or more charts failed linting or validation." >&2
+            exit 1
+          fi

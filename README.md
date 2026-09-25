@@ -97,17 +97,24 @@ make push-tag CHART=https-wrench
 make release CHART=https-wrench
 
 # Shortcuts for https-wrench
-make release-https-wrench
+make https-wrench-tag
+make https-wrench-push-tag
+make https-wrench-release
 ```
 
 ---
 
 ## CI/CD Pipeline
 
-Releases are automated via GitHub Actions in [.github/workflows/](.github/workflows/):
-- Pushing a tag matching `<chart-name>-v*` (e.g. `https-wrench-v0.1.0`) triggers the corresponding chart release pipeline.
-- The workflow lints the chart, validates template rendering, packages the chart, and pushes the OCI artifact to `oci://ghcr.io/xenos76/charts/<chart-name>`.
-- Manual releases or version overrides can be triggered via `workflow_dispatch` in the GitHub Actions UI.
+The CI/CD pipeline in [.github/workflows/](.github/workflows/) is split into distinct linting and publishing workflows:
+
+- **CI Linting ([`lint.yml`](.github/workflows/lint.yml))**:
+  - Automatically triggered on **every push** (to any branch) and on every pull request.
+  - Discovers all charts in the repository, runs `helm lint`, and validates dry-run template rendering.
+- **OCI Chart Publishing ([`release-https-wrench.yml`](.github/workflows/release-https-wrench.yml))**:
+  - Triggered **only when a proper release tag is pushed** (e.g. `https-wrench-v0.1.0`).
+  - Lints, packages, authenticates to GHCR via `GITHUB_TOKEN`, and pushes the OCI package to `oci://ghcr.io/xenos76/charts/https-wrench`.
+  - Also supports manual execution via `workflow_dispatch` with optional version overrides.
 
 ---
 
@@ -117,7 +124,8 @@ Releases are automated via GitHub Actions in [.github/workflows/](.github/workfl
 .
 ├── .github/
 │   └── workflows/
-│       └── release-https-wrench.yml    # OCI release pipeline for https-wrench
+│       ├── lint.yml                    # CI: Lints all charts on every push & PR
+│       └── release-https-wrench.yml    # CD: Publishes OCI chart on tag pushes
 ├── https-wrench/                       # https-wrench Helm chart
 │   ├── Chart.yaml
 │   ├── values.yaml

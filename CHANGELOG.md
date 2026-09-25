@@ -42,4 +42,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Dropped all Linux capabilities (`ALL`).
 - **Automation & Tooling**:
   - Root `Makefile` for automated linting, dry-run template testing, packaging, and git release tagging.
-  - Dedicated GitHub Actions workflow (`.github/workflows/release-https-wrench.yml`) for publishing OCI charts to GHCR using native `GITHUB_TOKEN` permissions.
+  - Split GitHub Actions workflows:
+    - `.github/workflows/lint.yml`: Automatic CI lint and template test for all charts on every push and PR.
+    - `.github/workflows/release-https-wrench.yml`: Dedicated OCI publishing to GHCR restricted strictly to release tag pushes (`https-wrench-v*`) or manual dispatch.

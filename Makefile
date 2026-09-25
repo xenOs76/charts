@@ -54,16 +54,16 @@ push-tag: ## Push the git tag for CHART to origin
 release: tag push-tag ## Create and push git tag for CHART in one step
 
 # Shortcuts for https-wrench
-.PHONY: tag-https-wrench
-tag-https-wrench: ## Shortcut: create git tag for https-wrench
+.PHONY: https-wrench-tag
+https-wrench-tag: ## Shortcut: create git tag for https-wrench
 	$(MAKE) tag CHART=https-wrench
 
-.PHONY: push-tag-https-wrench
-push-tag-https-wrench: ## Shortcut: push git tag for https-wrench
+.PHONY: https-wrench-push-tag
+https-wrench-push-tag: ## Shortcut: push git tag for https-wrench
 	$(MAKE) push-tag CHART=https-wrench
 
-.PHONY: release-https-wrench
-release-https-wrench: ## Shortcut: create and push git tag for https-wrench
+.PHONY: https-wrench-release
+https-wrench-release: ## Shortcut: create and push git tag for https-wrench
 	$(MAKE) release CHART=https-wrench
 
 # Local validation targets
