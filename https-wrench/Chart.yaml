@@ -1,0 +1,18 @@
+apiVersion: v2
+name: https-wrench
+description: Helm chart to deploy https-wrench in continuous observability synthetic probing mode
+type: application
+version: 0.1.0
+appVersion: "0.17.0"
+keywords:
+  - https-wrench
+  - observability
+  - synthetic-monitoring
+  - prometheus
+  - istio
+home: https://github.com/xenOs76/charts
+sources:
+  - https://github.com/xenOs76/charts
+  - https://github.com/xenOs76/https-wrench
+maintainers:
+  - name: xenOs76

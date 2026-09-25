@@ -1,0 +1,197 @@
+# Default values for https-wrench.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/xenos76/https-wrench
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+# Entrypoint command and arguments for the container.
+# Note: https-wrench container image is built FROM scratch with the binary placed at /https-wrench.
+command:
+  - /https-wrench
+args:
+  - requests
+  - --config
+  - /etc/https-wrench/config.yaml
+  - --observe
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+  fsGroup: 65534
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 9090
+  name: metrics
+
+# Prometheus ServiceMonitor configuration
+serviceMonitor:
+  enabled: true
+  interval: 15s
+  scrapeTimeout: 10s
+  path: /metrics
+  # Additional labels for Prometheus discovery (e.g., release: prometheus)
+  labels: {}
+  metricRelabelings: []
+  relabelings: []
+
+# PrometheusRule configuration (Prometheus Operator CRD)
+prometheusRule:
+  enabled: false
+  name: ""
+  # Additional labels for Prometheus Operator discovery (e.g., release: kube-prometheus-stack)
+  labels: {}
+  annotations: {}
+  groupName: "https-wrench.rules"
+  rules:
+    probeFailed:
+      enabled: true
+      for: 2m
+      severity: critical
+    certExpiringWarning:
+      enabled: true
+      days: 15
+      for: 1h
+      severity: warning
+    certExpiringCritical:
+      enabled: true
+      days: 7
+      for: 1h
+      severity: critical
+    certInvalid:
+      enabled: true
+      for: 5m
+      severity: critical
+    pushErrors:
+      enabled: true
+      for: 5m
+      severity: warning
+  additionalRules: []
+
+# Optional Gateway resource (Kubernetes Gateway API or Istio Gateway)
+gateway:
+  enabled: false
+  # apiVersion can be "gateway.networking.k8s.io/v1" (K8s Gateway API) or "networking.istio.io/v1beta1" (Istio Gateway)
+  apiVersion: gateway.networking.k8s.io/v1
+  name: ""
+  annotations: {}
+  # Kubernetes Gateway API configuration
+  gatewayClassName: istio
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      hostname: "https-wrench.priv.os76.xyz"
+
+# Optional Istio VirtualService resource
+virtualService:
+  enabled: false
+  apiVersion: networking.istio.io/v1beta1
+  annotations: {}
+  hosts:
+    - "https-wrench.priv.os76.xyz"
+  gateways:
+    - istio-system/gateway-priv-os76
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: "" # defaults to chart fullname
+            port:
+              number: 9090
+
+# Configuration reload options:
+# https-wrench automatically monitors configuration file changes at runtime via inotify.
+# Setting triggerChecksumAnnotation to true also triggers a rolling pod restart whenever
+# the ConfigMap content changes via Helm.
+reload:
+  triggerChecksumAnnotation: false
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Reference an externally managed ConfigMap instead of rendering one from .Values.config
+existingConfigMap: ""
+
+# https-wrench native configuration
+# Validated against https://raw.githubusercontent.com/xenOs76/https-wrench/refs/heads/main/https-wrench.schema.json
+config:
+  verbose: false
+  debug: false
+  concurrency: 10
+
+  observability:
+    enabled: true
+    interval: 30s
+    timeout: 25s
+    logging:
+      level: info
+      format: text
+    pull:
+      enabled: true
+      address: ":9090"
+      path: /metrics
+      # reloadToken: "optional-bearer-token"
+    metrics:
+      includeTls: true
+      includeCertChain: false
+      stripQuery: true
+      # customLabels:
+      #   # Defaults to release fullname (the same value as ServiceMonitor name) if omitted
+      #   job: "https-wrench"
+    push:
+      prometheus:
+        enabled: false
+        remoteWriteUrl: "http://127.0.0.1:9999/api/v1/metrics/write"
+      otlp:
+        enabled: false
+        endpoint: "http://127.0.0.1:4318/v1/metrics"
+
+  requests:
+    - name: cluster-httpbin-check
+      requestMethod: GET
+      userAgent: https-wrench-helm-def-ua
+      hosts:
+        - name: httpbin.os76.xyz
+          uriList:
+            - /get

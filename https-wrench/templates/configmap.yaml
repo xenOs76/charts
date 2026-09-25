@@ -1,0 +1,11 @@
+{{- if not .Values.existingConfigMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "https-wrench.fullname" . }}-config
+  labels:
+    {{- include "https-wrench.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+{{ include "https-wrench.config" . | indent 4 }}
+{{- end }}

@@ -1,0 +1,13 @@
+# Helm package artifacts
+dist/
+*.tgz
+
+# Environment & tooling
+.envrc
+.direnv/
+.idea/
+.vscode/
+
+# OS specific
+.DS_Store
+Thumbs.db

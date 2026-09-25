@@ -1,0 +1,102 @@
+# yamllint disable rule:comments rule:line-length
+---
+name: Publish https-wrench Helm Chart (OCI)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'https-wrench/**'
+      - '.github/workflows/release-https-wrench.yml'
+    tags:
+      - 'https-wrench-v*'
+  workflow_dispatch:
+    inputs:
+      force_version:
+        description: 'Optional version override (e.g. 0.1.1). Leave empty to use Chart.yaml'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  CHART_DIR: https-wrench
+  HELM_VERSION: "v3.16.1"
+
+jobs:
+  lint_and_publish:
+    name: Lint, Package & Push OCI Chart
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Lint Helm Chart
+        run: |
+          echo "==> Linting chart against default values.yaml"
+          helm lint "${CHART_DIR}"
+
+      - name: Validate Template Rendering
+        run: |
+          echo "==> Testing template dry-run against default values.yaml"
+          helm template test "${CHART_DIR}" > /dev/null
+
+      - name: Determine Chart Version & Target Namespace
+        id: prep
+        run: |
+          if [ -n "${{ inputs.force_version }}" ]; then
+            CHART_VERSION="${{ inputs.force_version }}"
+          elif [[ "${GITHUB_REF}" == refs/tags/https-wrench-v* ]]; then
+            CHART_VERSION="${GITHUB_REF_NAME#https-wrench-v}"
+          else
+            CHART_VERSION=$(grep '^version:' "${CHART_DIR}/Chart.yaml" | awk '{print $2}' | tr -d '"')
+          fi
+
+          OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          TARGET_NAMESPACE="${OWNER_LOWER}/charts"
+
+          echo "chart_version=${CHART_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "target_namespace=${TARGET_NAMESPACE}" >> "$GITHUB_OUTPUT"
+          echo "Target chart version: ${CHART_VERSION}"
+          echo "Target OCI namespace: ${TARGET_NAMESPACE}"
+
+      - name: Package Helm Chart
+        run: |
+          mkdir -p dist
+          helm package "${CHART_DIR}" --version "${{ steps.prep.outputs.chart_version }}" --destination dist/
+          echo "Package contents:"
+          ls -la dist/
+
+      - name: Log in to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login "${REGISTRY}" \
+            --username "${{ github.actor }}" \
+            --password-stdin
+
+      - name: Push Chart to OCI Registry
+        run: |
+          PACKAGE_FILE="dist/https-wrench-${{ steps.prep.outputs.chart_version }}.tgz"
+          echo "==> Pushing ${PACKAGE_FILE} to oci://${REGISTRY}/${{ steps.prep.outputs.target_namespace }}"
+          helm push "${PACKAGE_FILE}" "oci://${REGISTRY}/${{ steps.prep.outputs.target_namespace }}"
+
+      - name: Verify OCI Artifact
+        run: |
+          echo "==> Verifying chart metadata from OCI registry"
+          helm show chart "oci://${REGISTRY}/${{ steps.prep.outputs.target_namespace }}/https-wrench" \
+            --version "${{ steps.prep.outputs.chart_version }}"
+
+      - name: Logout from Registry
+        if: always()
+        run: |
+          helm registry logout "${REGISTRY}" || true

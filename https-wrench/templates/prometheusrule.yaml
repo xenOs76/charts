@@ -1,0 +1,78 @@
+{{- if .Values.prometheusRule.enabled }}
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/refs/heads/main/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ default (printf "%s-rules" (include "https-wrench.fullname" .)) .Values.prometheusRule.name }}
+  labels:
+    {{- include "https-wrench.labels" . | nindent 4 }}
+    {{- with .Values.prometheusRule.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.prometheusRule.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  groups:
+    - name: {{ default "https-wrench.rules" .Values.prometheusRule.groupName }}
+      rules:
+        {{- if .Values.prometheusRule.rules.probeFailed.enabled }}
+        - alert: HttpsWrenchProbeFailed
+          expr: https_wrench_probe_success == 0
+          for: {{ .Values.prometheusRule.rules.probeFailed.for | default "2m" }}
+          labels:
+            severity: {{ .Values.prometheusRule.rules.probeFailed.severity | default "critical" }}
+          annotations:
+            summary: "HTTPS probe failed for {{`{{`}} $labels.request_name {{`}}`}} ({{`{{`}} $labels.host {{`}}`}})"
+            description: "Probe {{`{{`}} $labels.request_name {{`}}`}} (host: {{`{{`}} $labels.host {{`}}`}}, uri: {{`{{`}} $labels.uri {{`}}`}}) has failed for more than {{ .Values.prometheusRule.rules.probeFailed.for | default "2m" }}."
+        {{- end }}
+
+        {{- if .Values.prometheusRule.rules.certExpiringWarning.enabled }}
+        - alert: HttpsWrenchCertExpiringSoonWarning
+          expr: https_wrench_ssl_cert_days_until_expiry < {{ .Values.prometheusRule.rules.certExpiringWarning.days | default 15 }}
+          for: {{ .Values.prometheusRule.rules.certExpiringWarning.for | default "1h" }}
+          labels:
+            severity: {{ .Values.prometheusRule.rules.certExpiringWarning.severity | default "warning" }}
+          annotations:
+            summary: "TLS certificate expiring soon for {{`{{`}} $labels.host {{`}}`}}"
+            description: "TLS certificate for {{`{{`}} $labels.host {{`}}`}} (request: {{`{{`}} $labels.request_name {{`}}`}}) will expire in {{`{{`}} $value | humanize {{`}}`}} days."
+        {{- end }}
+
+        {{- if .Values.prometheusRule.rules.certExpiringCritical.enabled }}
+        - alert: HttpsWrenchCertExpiringSoonCritical
+          expr: https_wrench_ssl_cert_days_until_expiry < {{ .Values.prometheusRule.rules.certExpiringCritical.days | default 7 }}
+          for: {{ .Values.prometheusRule.rules.certExpiringCritical.for | default "1h" }}
+          labels:
+            severity: {{ .Values.prometheusRule.rules.certExpiringCritical.severity | default "critical" }}
+          annotations:
+            summary: "TLS certificate critically close to expiry for {{`{{`}} $labels.host {{`}}`}}"
+            description: "TLS certificate for {{`{{`}} $labels.host {{`}}`}} (request: {{`{{`}} $labels.request_name {{`}}`}}) expires in {{`{{`}} $value | humanize {{`}}`}} days."
+        {{- end }}
+
+        {{- if .Values.prometheusRule.rules.certInvalid.enabled }}
+        - alert: HttpsWrenchCertInvalid
+          expr: https_wrench_ssl_cert_valid == 0
+          for: {{ .Values.prometheusRule.rules.certInvalid.for | default "5m" }}
+          labels:
+            severity: {{ .Values.prometheusRule.rules.certInvalid.severity | default "critical" }}
+          annotations:
+            summary: "Invalid TLS certificate on {{`{{`}} $labels.host {{`}}`}}"
+            description: "TLS verification failed for {{`{{`}} $labels.host {{`}}`}} (request: {{`{{`}} $labels.request_name {{`}}`}}). Certificate chain may be invalid or expired."
+        {{- end }}
+
+        {{- if .Values.prometheusRule.rules.pushErrors.enabled }}
+        - alert: HttpsWrenchPushTelemetryErrors
+          expr: rate(https_wrench_push_errors_total[5m]) > 0
+          for: {{ .Values.prometheusRule.rules.pushErrors.for | default "5m" }}
+          labels:
+            severity: {{ .Values.prometheusRule.rules.pushErrors.severity | default "warning" }}
+          annotations:
+            summary: "https-wrench push telemetry errors for {{`{{`}} $labels.exporter {{`}}`}}"
+            description: "https-wrench is failing to export telemetry via exporter {{`{{`}} $labels.exporter {{`}}`}}."
+        {{- end }}
+
+        {{- with .Values.prometheusRule.additionalRules }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+{{- end }}

@@ -1,0 +1,15 @@
+.DS_Store
+# Common editor artifacts
+*.swp
+*.bak
+*~
+.*.sw[a-p]
+# Version control
+.git/
+.gitignore
+.bzr/
+.hg/
+# CI / scratch
+.idea/
+.vscode/
+*.tgz

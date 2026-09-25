@@ -1,0 +1,37 @@
+{{- if .Values.virtualService.enabled }}
+apiVersion: {{ .Values.virtualService.apiVersion | default "networking.istio.io/v1beta1" }}
+kind: VirtualService
+metadata:
+  name: {{ include "https-wrench.fullname" . }}
+  labels:
+    {{- include "https-wrench.labels" . | nindent 4 }}
+  {{- with .Values.virtualService.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  hosts:
+    {{- toYaml .Values.virtualService.hosts | nindent 4 }}
+  gateways:
+    {{- toYaml .Values.virtualService.gateways | nindent 4 }}
+  http:
+    {{- if .Values.virtualService.http }}
+    {{- range $route := .Values.virtualService.http }}
+    - match:
+        {{- toYaml $route.match | nindent 8 }}
+      route:
+        {{- range $dest := $route.route }}
+        - destination:
+            host: {{ default (include "https-wrench.fullname" $) $dest.destination.host }}
+            port:
+              number: {{ default $.Values.service.port $dest.destination.port.number }}
+        {{- end }}
+    {{- end }}
+    {{- else }}
+    - route:
+        - destination:
+            host: {{ include "https-wrench.fullname" . }}
+            port:
+              number: {{ .Values.service.port }}
+    {{- end }}
+{{- end }}
