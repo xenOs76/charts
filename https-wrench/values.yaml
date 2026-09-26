@@ -145,7 +145,7 @@ networkPolicy:
     # Ports allowed for incoming traffic (defaults to the pod's named port 'metrics')
     ports:
       - protocol: TCP
-        port: 9090
+        port: metrics
     # From which sources incoming traffic is accepted.
     # Defaults to restricting ingress traffic to pods within the same namespace.
     # To allow unrestricted ingress across all namespaces, explicitly configure:
