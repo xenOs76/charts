@@ -60,7 +60,7 @@ Deterministic verification is mandatory. The chart provides `values.schema.json`
 
 ### Kubernetes NetworkPolicy
 - **NetworkPolicy:** Toggled via `.Values.networkPolicy.enabled`. Uses standard `networking.k8s.io/v1`.
-- Enforces ingress isolation on `.Values.service.port` (port `9090`).
+- Enforces ingress isolation on the pod's metrics endpoint (defaults to port `9090` or named port `metrics`).
 - Enforces egress rules for essential DNS resolution (UDP/TCP port 53 permits traffic to any destination by default as its `to` list is omitted; restricting DNS to CoreDNS requires a configured `to` selector), outbound synthetic HTTP/HTTPS probes (ports 80 and 443 with IMDS `169.254.169.254/32` blocked), and optional telemetry push.
 
 ---

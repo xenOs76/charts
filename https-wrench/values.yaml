@@ -142,7 +142,7 @@ networkPolicy:
     - Egress
   ingress:
     enabled: true
-    # Ports allowed for incoming traffic (defaults to service.port)
+    # Ports allowed for incoming traffic (defaults to the pod's named port 'metrics')
     ports:
       - protocol: TCP
         port: 9090

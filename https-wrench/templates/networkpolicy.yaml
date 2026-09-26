@@ -24,7 +24,7 @@ spec:
         {{- toYaml .Values.networkPolicy.ingress.ports | nindent 8 }}
         {{- else }}
         - protocol: TCP
-          port: {{ .Values.service.port }}
+          port: metrics
         {{- end }}
       {{- if .Values.networkPolicy.ingress.from }}
       from:
