@@ -131,6 +131,78 @@ virtualService:
             port:
               number: 9090
 
+# Optional Kubernetes NetworkPolicy (networking.k8s.io/v1)
+# Controls ingress traffic to metrics/reload and egress traffic for probes, telemetry, and DNS
+networkPolicy:
+  enabled: false
+  annotations: {}
+  # Policy types to apply: [Ingress], [Egress], or [Ingress, Egress]
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    enabled: true
+    # Ports allowed for incoming traffic (defaults to service.port)
+    ports:
+      - protocol: TCP
+        port: 9090
+    # From which sources incoming traffic is accepted.
+    # An empty list ([]) allows traffic from all pods in the cluster on the specified ports.
+    # Specify namespaceSelector and/or podSelector to restrict access to Prometheus or Ingress gateways.
+    from: []
+    # Example restricting to Prometheus in monitoring namespace:
+    # from:
+    #   - namespaceSelector:
+    #       matchLabels:
+    #         kubernetes.io/metadata.name: monitoring
+    #     podSelector:
+    #       matchLabels:
+    #         app.kubernetes.io/name: prometheus
+  egress:
+    # 1. DNS egress (essential for hostname resolution)
+    dns:
+      enabled: true
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+      # Optional destination selectors for DNS servers (empty allows all DNS IPs including node-local-dns)
+      to: []
+      # Example restricting to CoreDNS in kube-system:
+      # to:
+      #   - namespaceSelector:
+      #       matchLabels:
+      #         kubernetes.io/metadata.name: kube-system
+      #     podSelector:
+      #       matchLabels:
+      #         k8s-app: kube-dns
+
+    # 2. Outbound HTTP/HTTPS probe egress to target services
+    https:
+      enabled: true
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80
+      # By default allows any external destination except cloud metadata IP (169.254.169.254/32)
+      to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 169.254.169.254/32
+
+    # 3. Telemetry push egress (for push.prometheus or push.otlp)
+    pushTelemetry:
+      enabled: false
+      ports: []
+      to: []
+
+  # Custom escape hatches for advanced networking requirements
+  extraIngress: []
+  extraEgress: []
+
 # Configuration reload options:
 # https-wrench automatically monitors configuration file changes at runtime via inotify.
 # Setting triggerChecksumAnnotation to true also triggers a rolling pod restart whenever

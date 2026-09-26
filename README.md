@@ -10,7 +10,7 @@ All charts in this repository are packaged and published in **OCI format** to **
 
 | Chart | Version | Description | OCI Artifact | Docs | Changelog |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **https-wrench** | `0.1.0` | Synthetic HTTPS request probe runner and continuous observability service | `oci://ghcr.io/xenos76/charts/https-wrench` | [README](./https-wrench/README.md) | [Changelog](./CHANGELOG.md#https-wrench) |
+| **https-wrench** | `0.2.0` | Synthetic HTTPS request probe runner and continuous observability service | `oci://ghcr.io/xenos76/charts/https-wrench` | [README](./https-wrench/README.md) | [Changelog](./CHANGELOG.md#https-wrench) |
 
 ---
 
@@ -30,13 +30,13 @@ Inspect metadata and default configuration directly from GHCR without cloning th
 
 ```bash
 # Show chart metadata
-helm show chart oci://ghcr.io/xenos76/charts/https-wrench --version 0.1.0
+helm show chart oci://ghcr.io/xenos76/charts/https-wrench --version 0.2.0
 
 # Show default values
-helm show values oci://ghcr.io/xenos76/charts/https-wrench --version 0.1.0
+helm show values oci://ghcr.io/xenos76/charts/https-wrench --version 0.2.0
 
 # Show chart README
-helm show readme oci://ghcr.io/xenos76/charts/https-wrench --version 0.1.0
+helm show readme oci://ghcr.io/xenos76/charts/https-wrench --version 0.2.0
 ```
 
 ### 3. Install or Upgrade Charts
@@ -45,7 +45,7 @@ helm show readme oci://ghcr.io/xenos76/charts/https-wrench --version 0.1.0
 
 ```bash
 helm install https-wrench oci://ghcr.io/xenos76/charts/https-wrench \
-  --version 0.1.0 \
+  --version 0.2.0 \
   --namespace monitoring \
   --create-namespace
 ```
@@ -54,7 +54,7 @@ helm install https-wrench oci://ghcr.io/xenos76/charts/https-wrench \
 
 ```bash
 helm upgrade --install https-wrench oci://ghcr.io/xenos76/charts/https-wrench \
-  --version 0.1.0 \
+  --version 0.2.0 \
   --namespace monitoring \
   --create-namespace \
   -f custom-values.yaml
@@ -63,7 +63,7 @@ helm upgrade --install https-wrench oci://ghcr.io/xenos76/charts/https-wrench \
 **Pull and Untar Chart Locally:**
 
 ```bash
-helm pull oci://ghcr.io/xenos76/charts/https-wrench --version 0.1.0 --untar
+helm pull oci://ghcr.io/xenos76/charts/https-wrench --version 0.2.0 --untar
 ```
 
 ---

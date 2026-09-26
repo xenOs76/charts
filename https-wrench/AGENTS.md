@@ -58,6 +58,11 @@ Deterministic verification is mandatory. The chart provides `values.schema.json`
 - **Gateway:** Toggled via `.Values.gateway.enabled`. Supports both Kubernetes Gateway API (`gateway.networking.k8s.io/v1`) and Istio Gateway (`networking.istio.io/v1beta1`) via `.Values.gateway.apiVersion`.
 - **VirtualService:** Toggled via `.Values.virtualService.enabled`. Attaches to mesh gateways (defaults to `istio-system/gateway-priv-os76`) to expose the metrics endpoint externally or to cross-namespace scrapers.
 
+### Kubernetes NetworkPolicy
+- **NetworkPolicy:** Toggled via `.Values.networkPolicy.enabled`. Uses standard `networking.k8s.io/v1`.
+- Enforces ingress isolation on `.Values.service.port` (port `9090`).
+- Enforces egress rules for essential DNS resolution (`kube-system` / CoreDNS on UDP/TCP port 53), outbound synthetic HTTP/HTTPS probes (ports 80 and 443 with IMDS `169.254.169.254/32` blocked), and optional telemetry push.
+
 ---
 
 ## 5. Verification Commands for Agents
@@ -71,8 +76,9 @@ helm lint https-wrench
 # 2. Dry-run template generation with defaults
 helm template test-wrench https-wrench
 
-# 3. Dry-run template generation with all CRDs toggled on
+# 3. Dry-run template generation with NetworkPolicy and all CRDs toggled on
 helm template test-wrench https-wrench \
+  --set networkPolicy.enabled=true \
   --set serviceMonitor.enabled=true \
   --set virtualService.enabled=true \
   --set gateway.enabled=true
