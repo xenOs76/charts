@@ -138,7 +138,7 @@ helm pull oci://ghcr.io/xenos76/charts/https-wrench --version 0.2.0 --untar
 | `virtualService.enabled` | Deploy Istio VirtualService | `false` |
 | `networkPolicy.enabled` | Deploy Kubernetes NetworkPolicy | `false` |
 | `networkPolicy.policyTypes` | Enforced policy types (`Ingress`, `Egress`) | `["Ingress", "Egress"]` |
-| `networkPolicy.ingress.from` | Allowed ingress sources for metrics scrape | `[]` *(all pods)* |
+| `networkPolicy.ingress.from` | Allowed ingress sources for metrics scrape | `[{podSelector: {}}]` *(same namespace)* |
 | `networkPolicy.egress.dns.enabled` | Allow egress DNS resolution (port 53 UDP/TCP) | `true` |
 | `networkPolicy.egress.https.enabled` | Allow outbound synthetic probes (ports 443, 80) | `true` |
 | `networkPolicy.egress.pushTelemetry.enabled` | Allow outbound telemetry push | `false` |
