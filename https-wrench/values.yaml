@@ -195,6 +195,8 @@ networkPolicy:
             cidr: 0.0.0.0/0
             except:
               - 169.254.169.254/32
+        - ipBlock:
+            cidr: ::/0
 
     # 3. Telemetry push egress (for push.prometheus or push.otlp)
     pushTelemetry:
