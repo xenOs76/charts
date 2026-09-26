@@ -12,6 +12,7 @@ The chart is packaged and published in **OCI format** to `ghcr.io/xenos76/charts
 - **Prometheus ServiceMonitor:** Preconfigured CRD for automatic target discovery by Prometheus Operator.
 - **Optional Gateway & Istio VirtualService:** Easily expose endpoints via Kubernetes Gateway API or Istio mesh routing.
 - **Dual-Layer Schema Validation:** Chart values validated by `values.schema.json`, with probe configurations checked directly against upstream `https-wrench.schema.json`.
+- **Kubernetes NetworkPolicy:** Optional `networking.k8s.io/v1` template with least-privilege DNS resolution, probe egress, and cloud metadata (IMDS) protection.
 - **Hardened Defaults:** Non-root user (`65534`), dropped capabilities, read-only root filesystem, and configurable resource constraints.
 
 ## Working with OCI Chart Artifacts
@@ -30,13 +31,13 @@ To inspect metadata or default configuration directly from the OCI registry with
 
 ```bash
 # View chart metadata
-helm show chart oci://ghcr.io/xenos76/charts/https-wrench --version 0.1.0
+helm show chart oci://ghcr.io/xenos76/charts/https-wrench --version 0.2.0
 
 # View default values.yaml
-helm show values oci://ghcr.io/xenos76/charts/https-wrench --version 0.1.0
+helm show values oci://ghcr.io/xenos76/charts/https-wrench --version 0.2.0
 
 # View README from registry
-helm show readme oci://ghcr.io/xenos76/charts/https-wrench --version 0.1.0
+helm show readme oci://ghcr.io/xenos76/charts/https-wrench --version 0.2.0
 ```
 
 ### 3. Install Chart from OCI Registry
@@ -45,7 +46,7 @@ helm show readme oci://ghcr.io/xenos76/charts/https-wrench --version 0.1.0
 
 ```bash
 helm install https-wrench oci://ghcr.io/xenos76/charts/https-wrench \
-  --version 0.1.0 \
+  --version 0.2.0 \
   --namespace monitoring \
   --create-namespace
 ```
@@ -54,7 +55,7 @@ helm install https-wrench oci://ghcr.io/xenos76/charts/https-wrench \
 
 ```bash
 helm install https-wrench oci://ghcr.io/xenos76/charts/https-wrench \
-  --version 0.1.0 \
+  --version 0.2.0 \
   --namespace monitoring \
   --create-namespace \
   -f my-probes-values.yaml
@@ -64,7 +65,7 @@ helm install https-wrench oci://ghcr.io/xenos76/charts/https-wrench \
 
 ```bash
 helm install https-wrench oci://ghcr.io/xenos76/charts/https-wrench \
-  --version 0.1.0 \
+  --version 0.2.0 \
   --namespace monitoring \
   --create-namespace \
   -f base-values.yaml \
@@ -94,7 +95,7 @@ helm get manifest https-wrench --namespace monitoring
 
 ```bash
 helm upgrade https-wrench oci://ghcr.io/xenos76/charts/https-wrench \
-  --version 0.1.0 \
+  --version 0.2.0 \
   --namespace monitoring \
   -f my-probes-values.yaml
 ```
@@ -103,7 +104,7 @@ helm upgrade https-wrench oci://ghcr.io/xenos76/charts/https-wrench \
 
 ```bash
 helm upgrade --install https-wrench oci://ghcr.io/xenos76/charts/https-wrench \
-  --version 0.1.0 \
+  --version 0.2.0 \
   --namespace monitoring \
   --create-namespace \
   -f my-probes-values.yaml
@@ -116,7 +117,7 @@ The running `https-wrench` pod will automatically reload modified probes without
 To download and extract the raw chart source files locally for inspection or local testing:
 
 ```bash
-helm pull oci://ghcr.io/xenos76/charts/https-wrench --version 0.1.0 --untar
+helm pull oci://ghcr.io/xenos76/charts/https-wrench --version 0.2.0 --untar
 ```
 
 ## Configuration Parameters
@@ -125,7 +126,7 @@ helm pull oci://ghcr.io/xenos76/charts/https-wrench --version 0.1.0 --untar
 | :--- | :--- | :--- |
 | `replicaCount` | Number of pod replicas | `1` |
 | `image.repository` | Container image repository | `ghcr.io/xenos76/https-wrench` |
-| `image.tag` | Image tag (defaults to `Chart.appVersion`) | `v0.17.0` |
+| `image.tag` | Image tag (defaults to `Chart.appVersion`) | `0.17.0` |
 | `image.pullPolicy` | Image pull policy | `IfNotPresent` |
 | `service.port` | Port exposed by the Service | `9090` |
 | `serviceMonitor.enabled` | Deploy Prometheus ServiceMonitor | `true` |
@@ -135,6 +136,12 @@ helm pull oci://ghcr.io/xenos76/charts/https-wrench --version 0.1.0 --untar
 | `gateway.enabled` | Deploy a Gateway resource | `false` |
 | `gateway.apiVersion` | `gateway.networking.k8s.io/v1` or `networking.istio.io/v1beta1` | `gateway.networking.k8s.io/v1` |
 | `virtualService.enabled` | Deploy Istio VirtualService | `false` |
+| `networkPolicy.enabled` | Deploy Kubernetes NetworkPolicy | `false` |
+| `networkPolicy.policyTypes` | Enforced policy types (`Ingress`, `Egress`) | `["Ingress", "Egress"]` |
+| `networkPolicy.ingress.from` | Allowed ingress sources for metrics scrape | `[{podSelector: {}}]` *(same namespace)* |
+| `networkPolicy.egress.dns.enabled` | Allow egress DNS resolution (port 53 UDP/TCP) | `true` |
+| `networkPolicy.egress.https.enabled` | Allow outbound synthetic probes (ports 443, 80) | `true` |
+| `networkPolicy.egress.pushTelemetry.enabled` | Allow outbound telemetry push | `false` |
 | `reload.triggerChecksumAnnotation` | Force rolling restart on ConfigMap update | `false` |
 | `config` | Native `https-wrench` YAML configuration | *(see values.yaml)* |
 

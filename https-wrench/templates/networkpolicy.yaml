@@ -1,0 +1,73 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "https-wrench.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "https-wrench.labels" . | nindent 4 }}
+  {{- with .Values.networkPolicy.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "https-wrench.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    {{- toYaml .Values.networkPolicy.policyTypes | nindent 4 }}
+  {{- if has "Ingress" .Values.networkPolicy.policyTypes }}
+  ingress:
+    {{- if .Values.networkPolicy.ingress.enabled }}
+    - ports:
+        {{- if .Values.networkPolicy.ingress.ports }}
+        {{- toYaml .Values.networkPolicy.ingress.ports | nindent 8 }}
+        {{- else }}
+        - protocol: TCP
+          port: metrics
+        {{- end }}
+      {{- if .Values.networkPolicy.ingress.from }}
+      from:
+        {{- toYaml .Values.networkPolicy.ingress.from | nindent 8 }}
+      {{- end }}
+    {{- end }}
+    {{- with .Values.networkPolicy.extraIngress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if and (not .Values.networkPolicy.ingress.enabled) (not .Values.networkPolicy.extraIngress) }}
+    []
+    {{- end }}
+  {{- end }}
+  {{- if has "Egress" .Values.networkPolicy.policyTypes }}
+  egress:
+    {{- if kindIs "slice" .Values.networkPolicy.egress }}
+    {{- toYaml .Values.networkPolicy.egress | nindent 4 }}
+    {{- else if kindIs "map" .Values.networkPolicy.egress }}
+    {{- $hasEgressRules := false }}
+    {{- range $name, $rule := .Values.networkPolicy.egress }}
+    {{- if and $rule (ne $rule.enabled false) }}
+    {{- if $rule.ports }}
+    {{- $hasEgressRules = true }}
+    - ports:
+        {{- toYaml $rule.ports | nindent 8 }}
+      {{- with $rule.to }}
+      to:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- else if $rule.to }}
+    {{- $hasEgressRules = true }}
+    - to:
+        {{- toYaml $rule.to | nindent 8 }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- with .Values.networkPolicy.extraEgress }}
+    {{- toYaml . | nindent 4 }}
+    {{- $hasEgressRules = true }}
+    {{- end }}
+    {{- if not $hasEgressRules }}
+    []
+    {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}

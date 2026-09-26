@@ -306,6 +306,281 @@
         }
       }
     },
+    "networkPolicy": {
+      "type": "object",
+      "required": [
+        "enabled"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "annotations": {
+          "type": "object"
+        },
+        "policyTypes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Ingress",
+              "Egress"
+            ]
+          }
+        },
+        "ingress": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "ports": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "port": {
+                    "type": [
+                      "string",
+                      "integer"
+                    ]
+                  },
+                  "protocol": {
+                    "type": "string",
+                    "enum": [
+                      "TCP",
+                      "UDP",
+                      "SCTP"
+                    ]
+                  },
+                  "endPort": {
+                    "type": "integer"
+                  }
+                },
+                "dependencies": {
+                  "endPort": {
+                    "required": [
+                      "port"
+                    ],
+                    "properties": {
+                      "port": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "from": {
+              "type": "array"
+            }
+          }
+        },
+        "egress": {
+          "type": "object",
+          "properties": {
+            "dns": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "ports": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "port": {
+                        "type": [
+                          "string",
+                          "integer"
+                        ]
+                      },
+                      "protocol": {
+                        "type": "string",
+                        "enum": [
+                          "TCP",
+                          "UDP",
+                          "SCTP"
+                        ]
+                      },
+                      "endPort": {
+                        "type": "integer"
+                      }
+                    },
+                    "dependencies": {
+                      "endPort": {
+                        "required": [
+                          "port"
+                        ],
+                        "properties": {
+                          "port": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "to": {
+                  "type": "array"
+                }
+              }
+            },
+            "https": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "ports": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "port": {
+                        "type": [
+                          "string",
+                          "integer"
+                        ]
+                      },
+                      "protocol": {
+                        "type": "string",
+                        "enum": [
+                          "TCP",
+                          "UDP",
+                          "SCTP"
+                        ]
+                      },
+                      "endPort": {
+                        "type": "integer"
+                      }
+                    },
+                    "dependencies": {
+                      "endPort": {
+                        "required": [
+                          "port"
+                        ],
+                        "properties": {
+                          "port": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "to": {
+                  "type": "array"
+                }
+              }
+            },
+            "probes": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "ports": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "port": {
+                        "type": [
+                          "string",
+                          "integer"
+                        ]
+                      },
+                      "protocol": {
+                        "type": "string",
+                        "enum": [
+                          "TCP",
+                          "UDP",
+                          "SCTP"
+                        ]
+                      },
+                      "endPort": {
+                        "type": "integer"
+                      }
+                    },
+                    "dependencies": {
+                      "endPort": {
+                        "required": [
+                          "port"
+                        ],
+                        "properties": {
+                          "port": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "to": {
+                  "type": "array"
+                }
+              }
+            },
+            "pushTelemetry": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "ports": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "port": {
+                        "type": [
+                          "string",
+                          "integer"
+                        ]
+                      },
+                      "protocol": {
+                        "type": "string",
+                        "enum": [
+                          "TCP",
+                          "UDP",
+                          "SCTP"
+                        ]
+                      },
+                      "endPort": {
+                        "type": "integer"
+                      }
+                    },
+                    "dependencies": {
+                      "endPort": {
+                        "required": [
+                          "port"
+                        ],
+                        "properties": {
+                          "port": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "to": {
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "extraIngress": {
+          "type": "array"
+        },
+        "extraEgress": {
+          "type": "array"
+        }
+      }
+    },
     "reload": {
       "type": "object",
       "properties": {

@@ -13,10 +13,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## https-wrench
 
+### [0.2.0] - 2026-09-26
+
+#### Added
+- **Kubernetes NetworkPolicy (`networking.k8s.io/v1`)**:
+  - Optional templated NetworkPolicy managed via `.Values.networkPolicy.enabled` (default: `false`).
+  - Configurable ingress isolation on `.Values.service.port` (`9090`) with flexible source pod/namespace selectors.
+  - Egress rules for DNS resolution (UDP/TCP `53`), outbound synthetic HTTP/HTTPS probing (ports `80`, `443`), and optional telemetry push.
+  - Default HTTPS egress rule excludes cloud Instance Metadata Service (IMDS `169.254.169.254/32`) when NetworkPolicy is enabled.
+  - Dynamic named egress rule support and escape hatches (`extraIngress`, `extraEgress`).
+- **Schema Validation**: Updated `values.schema.json` with comprehensive schema rules for `networkPolicy`.
+
 ### [0.1.0] - 2026-09-25
 
 #### Added
-- **Initial Public OCI Release**: Published `https-wrench` chart version `0.1.0` (packaging `https-wrench` `v0.17.0`) to GitHub Container Registry (`ghcr.io/xenos76/charts/https-wrench`).
+- **Initial Public OCI Release**: Published `https-wrench` chart version `0.1.0` (packaging `https-wrench` `0.17.0`) to GitHub Container Registry (`ghcr.io/xenos76/charts/https-wrench`).
 - **Scratch Container Compatibility**: Configured absolute binary invocation (`/https-wrench requests --config ... --observe`) to run upstream images built `FROM scratch`.
 - **Zero-Downtime Configuration Reloading**:
   - Atomic directory projection on `/etc/https-wrench` without `subPath` to preserve Kubernetes symlink rotation for the Inotify watcher.
