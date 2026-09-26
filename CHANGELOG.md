@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Optional templated NetworkPolicy managed via `.Values.networkPolicy.enabled` (default: `false`).
   - Configurable ingress isolation on `.Values.service.port` (`9090`) with flexible source pod/namespace selectors.
   - Egress rules for DNS resolution (UDP/TCP `53`), outbound synthetic HTTP/HTTPS probing (ports `80`, `443`), and optional telemetry push.
-  - Built-in cloud Instance Metadata Service (IMDS) isolation blocking `169.254.169.254/32` by default.
+  - Default HTTPS egress rule excludes cloud Instance Metadata Service (IMDS `169.254.169.254/32`) when NetworkPolicy is enabled.
   - Dynamic named egress rule support and escape hatches (`extraIngress`, `extraEgress`).
 - **Schema Validation**: Updated `values.schema.json` with comprehensive schema rules for `networkPolicy`.
 
