@@ -359,6 +359,9 @@
                 },
                 "dependencies": {
                   "endPort": {
+                    "required": [
+                      "port"
+                    ],
                     "properties": {
                       "port": {
                         "type": "integer"
@@ -407,6 +410,9 @@
                     },
                     "dependencies": {
                       "endPort": {
+                        "required": [
+                          "port"
+                        ],
                         "properties": {
                           "port": {
                             "type": "integer"
@@ -452,6 +458,9 @@
                     },
                     "dependencies": {
                       "endPort": {
+                        "required": [
+                          "port"
+                        ],
                         "properties": {
                           "port": {
                             "type": "integer"
@@ -497,6 +506,9 @@
                     },
                     "dependencies": {
                       "endPort": {
+                        "required": [
+                          "port"
+                        ],
                         "properties": {
                           "port": {
                             "type": "integer"
@@ -542,6 +554,9 @@
                     },
                     "dependencies": {
                       "endPort": {
+                        "required": [
+                          "port"
+                        ],
                         "properties": {
                           "port": {
                             "type": "integer"
