@@ -335,7 +335,29 @@
               "type": "boolean"
             },
             "ports": {
-              "type": "array"
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "port": {
+                    "type": [
+                      "string",
+                      "integer"
+                    ]
+                  },
+                  "protocol": {
+                    "type": "string",
+                    "enum": [
+                      "TCP",
+                      "UDP",
+                      "SCTP"
+                    ]
+                  },
+                  "endPort": {
+                    "type": "integer"
+                  }
+                }
+              }
             },
             "from": {
               "type": "array"
@@ -352,7 +374,29 @@
                   "type": "boolean"
                 },
                 "ports": {
-                  "type": "array"
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "port": {
+                        "type": [
+                          "string",
+                          "integer"
+                        ]
+                      },
+                      "protocol": {
+                        "type": "string",
+                        "enum": [
+                          "TCP",
+                          "UDP",
+                          "SCTP"
+                        ]
+                      },
+                      "endPort": {
+                        "type": "integer"
+                      }
+                    }
+                  }
                 },
                 "to": {
                   "type": "array"
@@ -366,7 +410,29 @@
                   "type": "boolean"
                 },
                 "ports": {
-                  "type": "array"
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "port": {
+                        "type": [
+                          "string",
+                          "integer"
+                        ]
+                      },
+                      "protocol": {
+                        "type": "string",
+                        "enum": [
+                          "TCP",
+                          "UDP",
+                          "SCTP"
+                        ]
+                      },
+                      "endPort": {
+                        "type": "integer"
+                      }
+                    }
+                  }
                 },
                 "to": {
                   "type": "array"
@@ -380,7 +446,29 @@
                   "type": "boolean"
                 },
                 "ports": {
-                  "type": "array"
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "port": {
+                        "type": [
+                          "string",
+                          "integer"
+                        ]
+                      },
+                      "protocol": {
+                        "type": "string",
+                        "enum": [
+                          "TCP",
+                          "UDP",
+                          "SCTP"
+                        ]
+                      },
+                      "endPort": {
+                        "type": "integer"
+                      }
+                    }
+                  }
                 },
                 "to": {
                   "type": "array"
@@ -394,7 +482,29 @@
                   "type": "boolean"
                 },
                 "ports": {
-                  "type": "array"
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "port": {
+                        "type": [
+                          "string",
+                          "integer"
+                        ]
+                      },
+                      "protocol": {
+                        "type": "string",
+                        "enum": [
+                          "TCP",
+                          "UDP",
+                          "SCTP"
+                        ]
+                      },
+                      "endPort": {
+                        "type": "integer"
+                      }
+                    }
+                  }
                 },
                 "to": {
                   "type": "array"
